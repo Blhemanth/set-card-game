@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<h2 class="title">Game Room</h2>
+
+<p id="turn" class="turn"></p>
+
+<div id="cards" style="text-align:center;"></div>
+
+<div style="text-align:center;">
+    <button class="primary" onclick="startGame()">Start Game</button>
+    <button class="primary" onclick="callSet()">SET</button>
+</div>
+
+<div class="scoreboard" id="scores"></div>
+
+<script src="js/app.js"></script>
+
+<script>
+setInterval(loadGameState, 2000);
+
+function loadGameState() {
+    const sessionId = localStorage.getItem("sessionId");
+    const playerId = localStorage.getItem("playerId");
+
+    fetch(`/api/game/state?sessionId=${sessionId}`)
+        .then(res => res.json())
+        .then(data => {
+
+            document.getElementById("turn").innerText =
+                "Current Turn: " + data.currentTurn;
+
+            const player = data.players[playerId];
+            let html = "";
+
+            if (player) {
+                player.cards.forEach(card => {
+                    const disabled = data.currentTurn !== playerId ? "disabled" : "";
+
+                    html += `
+                        <div class="game-card ${disabled}"
+                             onclick="${disabled ? '' : `passCard('${card.value}')`}">
+                             ${card.value}
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById("cards").innerHTML = html;
+
+            // Scoreboard
+            let scoreHTML = "";
+            for (let p in data.players) {
+                scoreHTML += `<div class="score-item">${p} : ${data.players[p].score}</div>`;
+            }
+
+            document.getElementById("scores").innerHTML = scoreHTML;
+        });
+}
+</script>
+
+</body>
+</html>

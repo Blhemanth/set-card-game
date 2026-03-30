@@ -1,0 +1,125 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a, #020617);
+    color: white;
+}
+
+/* Title */
+.title {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 42px;
+    font-weight: bold;
+}
+
+.subtitle {
+    text-align: center;
+    margin-top: 10px;
+    color: #94a3b8;
+}
+
+/* Layout */
+.container {
+    width: 60%;
+    margin: 40px auto;
+}
+
+/* Card UI */
+.card-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    transition: 0.3s;
+}
+
+.card-box:hover {
+    transform: translateY(-5px);
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    outline: none;
+}
+
+/* Buttons */
+button {
+    margin-top: 15px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.primary {
+    background: linear-gradient(45deg, #06b6d4, #3b82f6);
+    color: white;
+}
+
+.primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #06b6d4;
+}
+
+/* Game Cards */
+.game-card {
+    display: inline-block;
+    width: 90px;
+    height: 130px;
+    margin: 10px;
+    border-radius: 12px;
+    background: white;
+    color: black;
+    font-size: 30px;
+    line-height: 130px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.game-card:hover {
+    transform: scale(1.1);
+}
+
+.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+/* Scoreboard */
+.scoreboard {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.score-item {
+    background: rgba(255,255,255,0.05);
+    margin: 5px;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* Turn highlight */
+.turn {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #22c55e;
+    text-align: center;
+}

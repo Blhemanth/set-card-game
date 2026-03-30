@@ -202,24 +202,54 @@ public class GameService {
     // =========================
     // WINNER
     // =========================
-    public Player getWinner(String sessionId) {
+    public void startGame(String sessionId) {
 
-        GameSession session = gameManager.getSession(sessionId);
+    GameSession session = gameManager.getSession(sessionId);
 
-        if (session == null) {
-            throw new RuntimeException("Session not found");
-        }
-
-        Player winner = null;
-        int maxScore = Integer.MIN_VALUE;
-
-        for (Player player : session.getPlayers().values()) {
-            if (player.getScore() > maxScore) {
-                maxScore = player.getScore();
-                winner = player;
-            }
-        }
-
-        return winner;
+    if (session == null) {
+        throw new RuntimeException("Session not found");
     }
+
+    if (session.getPlayers().isEmpty()) {
+        throw new RuntimeException("No players joined");
+    }
+
+    // Start game
+    session.setGameStarted(true);
+
+    // Prepare turn order
+    session.getTurnOrder().clear();
+    for (String playerId : session.getPlayers().keySet()) {
+        session.getTurnOrder().add(playerId);
+    }
+
+    // Set first turn
+    session.setCurrentTurn(session.getTurnOrder().peek());
+
+    // 🔥 CLEAR OLD CARDS (IMPORTANT)
+    for (Player player : session.getPlayers().values()) {
+        player.getCards().clear();
+    }
+
+    // 🔥 GENERATE VALUES BASED ON PLAYER COUNT
+    int playerCount = session.getPlayers().size();
+
+    List<String> allowedValues = new ArrayList<>();
+    for (int i = 0; i < playerCount; i++) {
+        allowedValues.add(String.valueOf((char) ('A' + i)));
+    }
+
+    // 🔥 DISTRIBUTE CARDS (EACH PLAYER UNIQUE)
+    List<Player> players = new ArrayList<>(session.getPlayers().values());
+
+    for (int i = 0; i < players.size(); i++) {
+
+        Player player = players.get(i);
+        String value = allowedValues.get(i);
+
+        for (int j = 0; j < 4; j++) {
+            player.getCards().add(new Card(value));
+        }
+    }
+}
 }

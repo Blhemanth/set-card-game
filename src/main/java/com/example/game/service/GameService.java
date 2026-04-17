@@ -201,39 +201,40 @@ public class GameService {
 
         if (valid) {
 
-            session.setSetCount(session.getSetCount() + 1);
+    session.setSetCount(session.getSetCount() + 1);
 
-            int setNumber = session.getSetCount();
-            int score = 1000 - (setNumber - 1) * 100;
+    int setNumber = session.getSetCount();
+    int score = 1000 - (setNumber - 1) * 100;
 
-            player.setScore(player.getScore() + score);
+    player.setScore(player.getScore() + score);
 
-            // 🔥 Replace cards after SET
-            int playerCount = session.getPlayers().size();
+    // 🔥 FIXED PART
+    int playerCount = session.getPlayers().size();
 
-            List<String> allowedValues = new ArrayList<>();
-            for (int i = 0; i < playerCount; i++) {
-                allowedValues.add(String.valueOf((char) ('A' + i)));
-            }
+    List<String> allowedValues = new ArrayList<>();
+    for (int i = 0; i < playerCount; i++) {
+        allowedValues.add(String.valueOf((char) ('A' + i)));
+    }
 
-            Random random = new Random();
-            List<Card> newCards = new ArrayList<>();
+    Random random = new Random();
+    List<Card> newCards = new ArrayList<>();
 
-            for (int i = 0; i < 4; i++) {
-                String value = allowedValues.get(random.nextInt(allowedValues.size()));
-                newCards.add(new Card(value));
-            }
+    for (int i = 0; i < 4; i++) {
+        String value = allowedValues.get(random.nextInt(allowedValues.size()));
+        newCards.add(new Card(value));
+    }
 
-            player.setCards(newCards);
+    // ✅ FIX HERE
+    player.getCards().clear();
+    player.getCards().addAll(newCards);
 
-            // Game end
-            if (session.getSetCount() >= playerCount * 2) {
-                session.setGameStarted(false);
-                return "Valid SET! +" + score + " points | GAME OVER";
-            }
+    if (session.getSetCount() >= playerCount * 2) {
+        session.setGameStarted(false);
+        return "Valid SET! +" + score + " points | GAME OVER";
+    }
 
-            return "Valid SET! +" + score + " points";
-        } else {
+    return "Valid SET! +" + score + " points";
+} else {
             player.setScore(player.getScore() - 200);
             return "Invalid SET! -200 points";
         }

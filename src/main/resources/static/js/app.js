@@ -42,3 +42,25 @@ function callSet() {
         .then(res => res.text())
         .then(msg => alert(msg));
 }
+function showWaiting() {
+    document.getElementById("waitingScreen").classList.remove("hidden");
+}
+
+function hideWaiting() {
+    document.getElementById("waitingScreen").classList.add("hidden");
+}
+function showPopup(message, isError = false) {
+    const popup = document.getElementById("popup");
+    popup.innerText = message;
+    popup.classList.remove("hidden");
+
+    if (isError) {
+        popup.classList.add("error");
+    } else {
+        popup.classList.remove("error");
+    }
+
+    setTimeout(() => {
+        popup.classList.add("hidden");
+    }, 2000);
+}

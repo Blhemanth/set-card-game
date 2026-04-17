@@ -25,13 +25,13 @@ public class GameService {
     // JOIN SESSION
     // =========================
     public String joinSession(String sessionId) {
+
         GameSession session = gameManager.getSession(sessionId);
 
         if (session == null) {
             throw new RuntimeException("Session not found");
         }
 
-        // Limit players
         if (session.getPlayers().size() >= 4) {
             throw new RuntimeException("Max 4 players allowed");
         }
@@ -40,64 +40,67 @@ public class GameService {
         Player player = new Player(playerId);
 
         session.getPlayers().put(playerId, player);
-        session.getTurnOrder().add(playerId); // IMPORTANT
+        session.getTurnOrder().add(playerId);
 
         return playerId;
     }
 
     // =========================
-    // START GAME
+    // START GAME (SHUFFLED DECK)
     // =========================
     public void startGame(String sessionId) {
 
-    GameSession session = gameManager.getSession(sessionId);
+        GameSession session = gameManager.getSession(sessionId);
 
-    if (session == null) {
-        throw new RuntimeException("Session not found");
-    }
+        if (session == null) {
+            throw new RuntimeException("Session not found");
+        }
 
-    if (session.getPlayers().isEmpty()) {
-        throw new RuntimeException("No players joined");
-    }
+        if (session.getPlayers().isEmpty()) {
+            throw new RuntimeException("No players joined");
+        }
 
-    // Start game
-    session.setGameStarted(true);
+        session.setGameStarted(true);
 
-    // Prepare turn order
-    session.getTurnOrder().clear();
-    for (String playerId : session.getPlayers().keySet()) {
-        session.getTurnOrder().add(playerId);
-    }
+        // Prepare turn order
+        session.getTurnOrder().clear();
+        for (String playerId : session.getPlayers().keySet()) {
+            session.getTurnOrder().add(playerId);
+        }
 
-    // Set first turn
-    session.setCurrentTurn(session.getTurnOrder().peek());
+        session.setCurrentTurn(session.getTurnOrder().peek());
 
-    // 🔥 CLEAR OLD CARDS (IMPORTANT)
-    for (Player player : session.getPlayers().values()) {
-        player.getCards().clear();
-    }
+        int playerCount = session.getPlayers().size();
 
-    // 🔥 GENERATE VALUES BASED ON PLAYER COUNT
-    int playerCount = session.getPlayers().size();
+        // Allowed values based on player count
+        List<String> allowedValues = new ArrayList<>();
+        for (int i = 0; i < playerCount; i++) {
+            allowedValues.add(String.valueOf((char) ('A' + i)));
+        }
 
-    List<String> allowedValues = new ArrayList<>();
-    for (int i = 0; i < playerCount; i++) {
-        allowedValues.add(String.valueOf((char) ('A' + i)));
-    }
+        // Create deck
+        List<Card> deck = new ArrayList<>();
+        for (String value : allowedValues) {
+            for (int i = 0; i < 4 * playerCount; i++) {
+                deck.add(new Card(value));
+            }
+        }
 
-    // 🔥 DISTRIBUTE CARDS (EACH PLAYER UNIQUE)
-    List<Player> players = new ArrayList<>(session.getPlayers().values());
+        // Shuffle deck
+        Collections.shuffle(deck);
 
-    for (int i = 0; i < players.size(); i++) {
+        // Distribute cards
+        List<Player> players = new ArrayList<>(session.getPlayers().values());
+        int index = 0;
 
-        Player player = players.get(i);
-        String value = allowedValues.get(i);
+        for (Player player : players) {
+            player.getCards().clear();
 
-        for (int j = 0; j < 4; j++) {
-            player.getCards().add(new Card(value));
+            for (int i = 0; i < 4; i++) {
+                player.getCards().add(deck.get(index++));
+            }
         }
     }
-}
 
     // =========================
     // PASS CARD
@@ -146,7 +149,7 @@ public class GameService {
 
         String nextPlayerId = session.getTurnOrder().peek();
 
-        // Give card
+        // Give card to next player
         session.getPlayers().get(nextPlayerId).getCards().add(cardToPass);
 
         session.setCurrentTurn(nextPlayerId);
@@ -156,6 +159,7 @@ public class GameService {
     // GAME STATE
     // =========================
     public GameSession getGameState(String sessionId) {
+
         GameSession session = gameManager.getSession(sessionId);
 
         if (session == null) {
@@ -193,6 +197,7 @@ public class GameService {
                 .count() == 1;
 
         if (valid) {
+
             session.setSetCount(session.getSetCount() + 1);
 
             int setNumber = session.getSetCount();
@@ -200,7 +205,26 @@ public class GameService {
 
             player.setScore(player.getScore() + score);
 
-            if (session.getSetCount() >= 5) {
+            // 🔥 Generate new cards after SET
+            int playerCount = session.getPlayers().size();
+
+            List<String> allowedValues = new ArrayList<>();
+            for (int i = 0; i < playerCount; i++) {
+                allowedValues.add(String.valueOf((char) ('A' + i)));
+            }
+
+            Random random = new Random();
+            List<Card> newCards = new ArrayList<>();
+
+            for (int i = 0; i < 4; i++) {
+                String value = allowedValues.get(random.nextInt(allowedValues.size()));
+                newCards.add(new Card(value));
+            }
+
+            player.setCards(newCards);
+
+            // Game end condition
+            if (session.getSetCount() >= playerCount * 2) {
                 session.setGameStarted(false);
                 return "Valid SET! +" + score + " points | GAME OVER";
             }

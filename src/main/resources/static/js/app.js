@@ -64,3 +64,12 @@ function showPopup(message, isError = false) {
         popup.classList.add("hidden");
     }, 2000);
 }
+function checkPlayersAndToggleWaiting(data) {
+    const waitingScreen = document.getElementById("waitingScreen");
+
+    if (!data.players || Object.keys(data.players).length < 2) {
+        waitingScreen.classList.remove("hidden");
+    } else {
+        waitingScreen.classList.add("hidden");
+    }
+}

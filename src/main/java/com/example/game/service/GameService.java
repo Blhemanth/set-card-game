@@ -46,7 +46,7 @@ public class GameService {
     }
 
     // =========================
-    // START GAME (SHUFFLED DECK)
+    // START GAME (FIXED RANDOM)
     // =========================
     public void startGame(String sessionId) {
 
@@ -62,7 +62,7 @@ public class GameService {
 
         session.setGameStarted(true);
 
-        // Prepare turn order
+        // Setup turn order
         session.getTurnOrder().clear();
         for (String playerId : session.getPlayers().keySet()) {
             session.getTurnOrder().add(playerId);
@@ -72,24 +72,27 @@ public class GameService {
 
         int playerCount = session.getPlayers().size();
 
-        // Allowed values based on player count
+        // Allowed values (A, B, C, D based on players)
         List<String> allowedValues = new ArrayList<>();
         for (int i = 0; i < playerCount; i++) {
             allowedValues.add(String.valueOf((char) ('A' + i)));
         }
 
-        // Create deck
+        // 🔥 TRUE RANDOM DECK (IMPORTANT FIX)
+        Random random = new Random();
         List<Card> deck = new ArrayList<>();
-        for (String value : allowedValues) {
-            for (int i = 0; i < 4 * playerCount; i++) {
-                deck.add(new Card(value));
-            }
+
+        int totalCards = playerCount * 4;
+
+        for (int i = 0; i < totalCards; i++) {
+            String value = allowedValues.get(random.nextInt(allowedValues.size()));
+            deck.add(new Card(value));
         }
 
-        // Shuffle deck
+        // Shuffle
         Collections.shuffle(deck);
 
-        // Distribute cards
+        // Distribute
         List<Player> players = new ArrayList<>(session.getPlayers().values());
         int index = 0;
 
@@ -149,7 +152,7 @@ public class GameService {
 
         String nextPlayerId = session.getTurnOrder().peek();
 
-        // Give card to next player
+        // Give card
         session.getPlayers().get(nextPlayerId).getCards().add(cardToPass);
 
         session.setCurrentTurn(nextPlayerId);
@@ -205,7 +208,7 @@ public class GameService {
 
             player.setScore(player.getScore() + score);
 
-            // 🔥 Generate new cards after SET
+            // 🔥 Replace cards after SET
             int playerCount = session.getPlayers().size();
 
             List<String> allowedValues = new ArrayList<>();
@@ -223,7 +226,7 @@ public class GameService {
 
             player.setCards(newCards);
 
-            // Game end condition
+            // Game end
             if (session.getSetCount() >= playerCount * 2) {
                 session.setGameStarted(false);
                 return "Valid SET! +" + score + " points | GAME OVER";

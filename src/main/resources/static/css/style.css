@@ -208,3 +208,21 @@ button {
     from { transform: translateX(200px); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+.popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #22c55e;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.popup.error {
+    background: #ef4444;
+}
+
+.hidden {
+    display: none;
+}

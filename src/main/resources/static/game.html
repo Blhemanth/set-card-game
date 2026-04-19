@@ -8,27 +8,34 @@
 
 <h2 class="title">Game Room</h2>
 
+<div id="playersList"></div>
 <p id="turn" class="turn"></p>
+
+<!-- ✅ ONLY ONE waiting screen -->
+<div id="waitingScreen" class="waiting hidden">
+    <div class="loader"></div>
+    <h2>⏳ Waiting for players...</h2>
+</div>
+
+<div id="popup" class="popup hidden"></div>
 
 <div id="cards" style="text-align:center;"></div>
 
 <div style="text-align:center;">
-    <button class="primary" onclick="startGame()">Start Game</button>
+    <button id="startBtn" onclick="startGame()">Start Game</button>
     <button class="primary" onclick="callSet()">SET</button>
 </div>
-<div id="waitingScreen" class="waiting hidden">
-    <div class="loader"></div>
-    <h2>Waiting for players...</h2>
-    <p>Please wait while others join</p>
-</div>
+
 <div class="scoreboard" id="scores"></div>
 
 <script src="js/app.js"></script>
 
 <script>
+
 setInterval(loadGameState, 2000);
 
 function loadGameState() {
+
     const sessionId = localStorage.getItem("sessionId");
     const playerId = localStorage.getItem("playerId");
 
@@ -36,14 +43,26 @@ function loadGameState() {
         .then(res => res.json())
         .then(data => {
 
+            // ✅ TURN DISPLAY
             document.getElementById("turn").innerText =
-                "Current Turn: " + data.currentTurn;
+                "🎯 Current Turn: " + data.currentTurn;
 
+            // ✅ PLAYER LIST
+            renderPlayers(data.players);
+
+            // ✅ WAITING SCREEN
+            toggleWaiting(data);
+
+            // ✅ START BUTTON CONTROL
+            controlStartButton(data);
+
+            // ✅ CARDS
             const player = data.players[playerId];
             let html = "";
 
             if (player) {
                 player.cards.forEach(card => {
+
                     const disabled = data.currentTurn !== playerId ? "disabled" : "";
 
                     html += `
@@ -57,7 +76,7 @@ function loadGameState() {
 
             document.getElementById("cards").innerHTML = html;
 
-            // Scoreboard
+            // ✅ SCOREBOARD
             let scoreHTML = "";
             for (let p in data.players) {
                 scoreHTML += `<div class="score-item">${p} : ${data.players[p].score}</div>`;
@@ -66,6 +85,7 @@ function loadGameState() {
             document.getElementById("scores").innerHTML = scoreHTML;
         });
 }
+
 </script>
 
 </body>

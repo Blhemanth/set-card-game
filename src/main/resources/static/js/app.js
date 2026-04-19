@@ -24,7 +24,7 @@ function startGame() {
     const sessionId = localStorage.getItem("sessionId");
 
     fetch(`/api/game/start?sessionId=${sessionId}`)
-        .then(() => alert("Game Started"));
+        .then(() => showPopup("Game Started!"));
 }
 
 function passCard(value) {
@@ -40,36 +40,54 @@ function callSet() {
 
     fetch(`/api/game/set?sessionId=${sessionId}&playerId=${playerId}`)
         .then(res => res.text())
-        .then(msg => alert(msg));
-}
-function showWaiting() {
-    document.getElementById("waitingScreen").classList.remove("hidden");
+        .then(msg => {
+            if (msg.includes("Invalid")) {
+                showPopup(msg, true);
+            } else {
+                showPopup(msg);
+            }
+        });
 }
 
-function hideWaiting() {
-    document.getElementById("waitingScreen").classList.add("hidden");
+// ================= UI HELPERS =================
+
+function renderPlayers(players) {
+    const container = document.getElementById("playersList");
+    container.innerHTML = "<h3>Players:</h3>";
+
+    Object.keys(players).forEach(p => {
+        container.innerHTML += `<div>🧑 ${p}</div>`;
+    });
 }
-function showPopup(message, isError = false) {
+
+function toggleWaiting(data) {
+    const waiting = document.getElementById("waitingScreen");
+
+    if (Object.keys(data.players).length < 2) {
+        waiting.classList.remove("hidden");
+    } else {
+        waiting.classList.add("hidden");
+    }
+}
+
+function controlStartButton(data) {
+    const startBtn = document.getElementById("startBtn");
+
+    if (Object.keys(data.players).length < 2) {
+        startBtn.disabled = true;
+    } else {
+        startBtn.disabled = false;
+    }
+}
+
+function showPopup(message, error = false) {
     const popup = document.getElementById("popup");
+
     popup.innerText = message;
     popup.classList.remove("hidden");
 
-    if (isError) {
-        popup.classList.add("error");
-    } else {
-        popup.classList.remove("error");
-    }
+    if (error) popup.classList.add("error");
+    else popup.classList.remove("error");
 
-    setTimeout(() => {
-        popup.classList.add("hidden");
-    }, 2000);
-}
-function checkPlayersAndToggleWaiting(data) {
-    const waitingScreen = document.getElementById("waitingScreen");
-
-    if (!data.players || Object.keys(data.players).length < 2) {
-        waitingScreen.classList.remove("hidden");
-    } else {
-        waitingScreen.classList.add("hidden");
-    }
+    setTimeout(() => popup.classList.add("hidden"), 2000);
 }

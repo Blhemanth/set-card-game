@@ -1,37 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Game</title>
+    <title>Game Room</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <h2 class="title">Game Room</h2>
 
+<!-- 👥 Players -->
 <div id="playersList"></div>
+
+<!-- 🎯 Turn -->
 <p id="turn" class="turn"></p>
 
-<!-- ✅ ONLY ONE waiting screen -->
+<!-- ⏳ Waiting Screen -->
 <div id="waitingScreen" class="waiting hidden">
     <div class="loader"></div>
     <h2>⏳ Waiting for players...</h2>
 </div>
 
+<!-- 🔔 Popup -->
 <div id="popup" class="popup hidden"></div>
 
+<!-- 🎴 Cards -->
 <div id="cards" style="text-align:center;"></div>
 
+<!-- 🎮 Controls -->
 <div style="text-align:center;">
     <button id="startBtn" onclick="startGame()">Start Game</button>
     <button class="primary" onclick="callSet()">SET</button>
 </div>
 
+<!-- 🏆 Score -->
 <div class="scoreboard" id="scores"></div>
 
 <script src="js/app.js"></script>
 
 <script>
-
 setInterval(loadGameState, 2000);
 
 function loadGameState() {
@@ -43,24 +49,24 @@ function loadGameState() {
         .then(res => res.json())
         .then(data => {
 
-            // ✅ TURN DISPLAY
+            // 🎯 TURN
             document.getElementById("turn").innerText =
-                "🎯 Current Turn: " + data.currentTurn;
+                "🎯 Current Turn: " + (data.currentTurn || "-");
 
-            // ✅ PLAYER LIST
+            // 👥 PLAYERS
             renderPlayers(data.players);
 
-            // ✅ WAITING SCREEN
+            // ⏳ WAITING
             toggleWaiting(data);
 
-            // ✅ START BUTTON CONTROL
+            // ▶️ START BUTTON
             controlStartButton(data);
 
-            // ✅ CARDS
+            // 🎴 CARDS
             const player = data.players[playerId];
             let html = "";
 
-            if (player) {
+            if (player && player.cards) {
                 player.cards.forEach(card => {
 
                     const disabled = data.currentTurn !== playerId ? "disabled" : "";
@@ -76,16 +82,19 @@ function loadGameState() {
 
             document.getElementById("cards").innerHTML = html;
 
-            // ✅ SCOREBOARD
+            // 🏆 SCOREBOARD
             let scoreHTML = "";
             for (let p in data.players) {
                 scoreHTML += `<div class="score-item">${p} : ${data.players[p].score}</div>`;
             }
 
             document.getElementById("scores").innerHTML = scoreHTML;
+
+        })
+        .catch(() => {
+            showPopup("Server error", true);
         });
 }
-
 </script>
 
 </body>

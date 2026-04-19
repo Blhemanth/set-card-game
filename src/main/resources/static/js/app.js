@@ -1,3 +1,5 @@
+// ================= GAME ACTIONS =================
+
 function createGame() {
     fetch('/api/game/create')
         .then(res => res.json())
@@ -41,11 +43,7 @@ function callSet() {
     fetch(`/api/game/set?sessionId=${sessionId}&playerId=${playerId}`)
         .then(res => res.text())
         .then(msg => {
-            if (msg.includes("Invalid")) {
-                showPopup(msg, true);
-            } else {
-                showPopup(msg);
-            }
+            showPopup(msg, msg.includes("Invalid"));
         });
 }
 
@@ -73,11 +71,7 @@ function toggleWaiting(data) {
 function controlStartButton(data) {
     const startBtn = document.getElementById("startBtn");
 
-    if (Object.keys(data.players).length < 2) {
-        startBtn.disabled = true;
-    } else {
-        startBtn.disabled = false;
-    }
+    startBtn.disabled = Object.keys(data.players).length < 2;
 }
 
 function showPopup(message, error = false) {
